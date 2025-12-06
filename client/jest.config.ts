@@ -1,10 +1,4 @@
 import type { Config } from 'jest';
-import nextJest from 'next/jest';
-
-const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files
-  dir: './',
-});
 
 const config: Config = {
   testEnvironment: 'jsdom',
@@ -16,6 +10,26 @@ const config: Config = {
   // Module path aliases (match tsconfig paths)
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+  },
+  
+  // Use SWC for transformation (works better in CI)
+  transform: {
+    '^.+\\.(t|j)sx?$': [
+      '@swc/jest',
+      {
+        jsc: {
+          parser: {
+            syntax: 'typescript',
+            tsx: true,
+          },
+          transform: {
+            react: {
+              runtime: 'automatic',
+            },
+          },
+        },
+      },
+    ],
   },
   
   // Coverage configuration - exclude shadcn UI components
@@ -41,4 +55,4 @@ const config: Config = {
   verbose: true,
 };
 
-export default createJestConfig(config);
+export default config;
