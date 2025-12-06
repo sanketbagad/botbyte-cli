@@ -1,4 +1,17 @@
 import request from 'supertest';
+
+// Mock better-auth/node before importing app
+jest.mock('better-auth/node', () => ({
+  toNodeHandler: jest.fn(() => (req: any, res: any, next: any) => next()),
+}));
+
+// Mock the auth module
+jest.mock('../src/lib/auth', () => ({
+  auth: {
+    handler: jest.fn(),
+  },
+}));
+
 import { app } from '../src/index';
 
 describe('Server API', () => {
