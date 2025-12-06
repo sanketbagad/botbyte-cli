@@ -46,10 +46,10 @@ const config: Config = {
   ],
   coverageDirectory: 'coverage',
   
-  // Transform ignore patterns
+  // Transform ignore patterns - allow better-auth to be transformed
   transformIgnorePatterns: [
-    '/node_modules/',
-    '^.+\\.module\\.(css|sass|scss)$',
+    '/node_modules/(?!(better-auth)/)',
+    '^.+\.module\.(css|sass|scss)$',
   ],
   
   verbose: true,
