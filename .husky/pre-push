@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-echo "🔍 Running tests before push..."
+echo "🔍 Botbyte CLI checks for tests before pushing"
 npm run test
 
 if [ $? -ne 0 ]; then
@@ -8,4 +8,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "✅ All tests passed. Pushing..."
+echo "✅ All tests passed. Pushing to Botbyte CLI🎉..."

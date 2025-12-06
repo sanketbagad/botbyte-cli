@@ -1,6 +1,6 @@
 # Run lint-staged for linting
+echo "Checking for lint"
 npx lint-staged
 
-# Run tests before committing
-echo "Running tests..."
-npm run test
+echo "Successfully checked for lint"
+echo "Botbyte CLI is ready to be pushed"
