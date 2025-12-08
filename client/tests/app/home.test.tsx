@@ -139,7 +139,9 @@ describe('Home Page', () => {
       
       const avatar = screen.getByAltText('Test User');
       expect(avatar).toBeInTheDocument();
-      expect(avatar).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+      // Next.js Image component transforms the src URL
+      expect(avatar).toHaveAttribute('src');
+      expect(avatar.getAttribute('src')).toContain('avatar.jpg');
     });
 
     it('should call signOut when sign out button is clicked', () => {

@@ -15,6 +15,9 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({
     push: mockPush,
   })),
+  useSearchParams: jest.fn(() => ({
+    get: jest.fn(() => null),
+  })),
 }));
 
 // Mock LoginForm component
