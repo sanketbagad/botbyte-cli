@@ -1,10 +1,10 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { Terminal, LogOut, Mail, User, CheckCircle2, Loader2, Sparkles, Command } from "lucide-react"
+import Image from "next/image"
 
 export default function Home() {
   const { data, isPending } = authClient.useSession()
@@ -73,7 +73,7 @@ export default function Home() {
               <div className="flex justify-center">
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-full blur opacity-40 group-hover:opacity-75 transition duration-500" />
-                  <img
+                  <Image
                     src={data?.user?.image || "/vercel.svg"}
                     alt={data?.user?.name || "User"}
                     width={100}

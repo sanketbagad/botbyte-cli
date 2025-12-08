@@ -1,14 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { Terminal, Zap, Shield, Github, Loader2, AlertCircle } from "lucide-react";
 
-export function LoginForm() {
-  const router = useRouter();
+interface LoginFormProps {
+  callbackURL?: string;
+}
+
+export function LoginForm({ callbackURL = "http://localhost:3000" }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,9 +19,14 @@ export function LoginForm() {
     setError(null);
     
     try {
+      // Construct the full callback URL
+      const fullCallbackURL = callbackURL.startsWith("/") 
+        ? `http://localhost:3000${callbackURL}` 
+        : callbackURL;
+        
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: "http://localhost:3000",
+        callbackURL: fullCallbackURL,
       });
       
       if (result.error) {
