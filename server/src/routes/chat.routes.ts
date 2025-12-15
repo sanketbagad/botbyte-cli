@@ -5,7 +5,15 @@ import type { CoreMessage } from 'ai';
 
 const router = Router();
 const chatService = new ChatService();
-const aiService = new AIService();
+
+// Lazy initialization of AI service to avoid import-time errors
+let aiService: AIService | null = null;
+const getAIService = () => {
+  if (!aiService) {
+    aiService = new AIService();
+  }
+  return aiService;
+};
 
 // Type definitions
 type ConversationMode = "chat" | "tool" | "agent";
@@ -143,7 +151,7 @@ router.post('/stream', async (req: Request, res: Response) => {
     let fullResponse = '';
 
     // Stream AI response
-    await aiService.sendMessage(
+    await getAIService().sendMessage(
       aiMessages as CoreMessage[],
       (chunk: string) => {
         fullResponse += chunk;
