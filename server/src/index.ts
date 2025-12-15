@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3001;
 const allowedOrigins: (string | RegExp)[] = [
     "http://localhost:3000",
     "http://localhost:3001",
+    /vercel\.app$/,  // Allow all Vercel deployments
     ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
     ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
 ];
