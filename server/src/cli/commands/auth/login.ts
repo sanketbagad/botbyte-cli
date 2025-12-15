@@ -234,7 +234,14 @@ export async function loginAction(opts: { serverUrl?: string }): Promise<void> {
       verification_uri_complete,
       expires_in = 900,
       interval = 5,
-    } = deviceData;
+    } = deviceData as {
+      device_code: string;
+      user_code: string;
+      verification_uri: string;
+      verification_uri_complete: string;
+      expires_in: number;
+      interval: number;
+    };
 
     s.stop(chalk.green("✓ Device authorization initiated"));
 
@@ -414,12 +421,15 @@ async function pollForToken(
       });
 
       if (tokenResponse.ok) {
-        const data = await tokenResponse.json();
+        const data = await tokenResponse.json() as { access_token?: string };
         if (data.access_token) {
           return data as TokenResponse;
         }
       } else {
-        const error = await tokenResponse.json().catch(() => ({}));
+        const error = await tokenResponse.json().catch(() => ({})) as { 
+          error?: string; 
+          error_description?: string;
+        };
         switch (error.error) {
           case "authorization_pending":
             // Continue polling
