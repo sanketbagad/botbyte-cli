@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm install && npx prisma generate --schema=server/prisma/schema.prisma && cd server && npm run build",
+  "buildCommand": "cd server && npm run build",
   "outputDirectory": "server/dist",
   "installCommand": "npm install"
 }
