@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd server && npm run build",
+  "outputDirectory": "server/dist",
   "installCommand": "npm install"
 }
