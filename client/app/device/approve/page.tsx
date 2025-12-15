@@ -52,7 +52,7 @@ function DeviceApprovalContent() {
       });
 
       if (response.error) {
-        throw new Error(response.error.message || "Failed to approve device");
+        throw new Error(response.error.error_description || "Failed to approve device");
       }
 
       setStatus("success");
@@ -72,7 +72,7 @@ function DeviceApprovalContent() {
       });
 
       if (response.error) {
-        throw new Error(response.error.message || "Failed to deny device");
+        throw new Error(response.error.error_description || "Failed to deny device");
       }
 
       setStatus("denied");
