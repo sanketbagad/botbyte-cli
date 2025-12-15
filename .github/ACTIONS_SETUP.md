@@ -25,9 +25,13 @@ To enable automated publishing and CI/CD, you need to add the following secrets 
 | Secret Name | Description | How to Get |
 |-------------|-------------|------------|
 | `DATABASE_URL` | PostgreSQL connection string | Your database provider (e.g., Neon, Supabase) |
-| `GOOGLE_API_KEY` | Google Gemini API key | [Google AI Studio](https://makersuite.google.com/app/apikey) |
-| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | GitHub Settings → Developer settings → OAuth Apps |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth client secret | Same as above |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google Gemini API key | [Google AI Studio](https://makersuite.google.com/app/apikey) |
+| `GH_CLIENT_ID` | GitHub OAuth client ID | GitHub Settings → Developer settings → OAuth Apps |
+| `GH_CLIENT_SECRET` | GitHub OAuth client secret | Same as above |
+| `BETTER_AUTH_SECRET` | Better Auth secret key | Generate with `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | Base URL of your app | e.g., `http://localhost:3001` or production URL |
+
+**Note:** GitHub Actions reserves the `GITHUB_` prefix for system variables, so we use `GH_` instead.
 
 ## Workflows
 
