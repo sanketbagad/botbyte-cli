@@ -52,7 +52,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "figlet": "^1.9.4",
-    "marked": "^17.0.1",
+    "marked": "^15.0.6",
     "marked-terminal": "^7.3.0",
     "open": "^11.0.0",
     "prisma": "^7.1.0",
