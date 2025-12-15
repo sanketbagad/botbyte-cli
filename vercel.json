@@ -10,16 +10,6 @@
       "config": {
         "zeroConfig": true
       }
-    },
-    {
-      "src": "server/package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/src/index.ts"
     }
   ]
 }
