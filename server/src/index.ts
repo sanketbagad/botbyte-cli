@@ -26,14 +26,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Auth middleware - dynamically import better-auth to handle ESM
-app.use('/api/auth', async (req, res, next) => {
+app.use('/api/auth', async (req, res) => {
     try {
         const { toNodeHandler } = await import("better-auth/node");
         const { auth } = await import('./lib/auth');
-        toNodeHandler(auth)(req, res, next);
+        const handler = toNodeHandler(auth);
+        handler(req, res);
     } catch (error) {
         console.error('Auth middleware error:', error);
-        next(error);
+        res.status(500).json({ error: 'Auth initialization failed' });
     }
 });
 
