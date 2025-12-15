@@ -15,18 +15,24 @@
 
 ### Step 2: Environment Variables
 
-Add these environment variables in Vercel:
+Add these environment variables in Vercel dashboard:
 
-| Variable | Value |
-|----------|-------|
-| `DATABASE_URL` | Your Neon PostgreSQL URL |
-| `BETTER_AUTH_SECRET` | Your secret key |
-| `BETTER_AUTH_URL` | https://yourdomain.vercel.app |
-| `GH_CLIENT_ID` | Your GitHub OAuth ID |
-| `GH_CLIENT_SECRET` | Your GitHub OAuth secret |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Your Google API key |
-| `BOTBYTE_MODEL` | gemini-2.5-flash |
-| `CLIENT_URL` | Your frontend URL |
+1. Go to your project settings
+2. Click "Environment Variables"
+3. Add each variable (NOT as a Secret reference, but as plain text):
+
+| Variable | Value | Source |
+|----------|-------|--------|
+| `DATABASE_URL` | `postgresql://...` | From your `.env` file |
+| `BETTER_AUTH_SECRET` | `imyl507C5XrVucq5GeYSYRfJt2wOqVzO` | From your `.env` file |
+| `BETTER_AUTH_URL` | `https://your-project.vercel.app` | Your deployed URL |
+| `GH_CLIENT_ID` | `Ov23liRJlyJjiSQ1tWB3` | From your `.env` file |
+| `GH_CLIENT_SECRET` | `c2c16ec04490f6bdbe0c8d2ca544b94cd6c010a7` | From your `.env` file |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | `AIzaSyDlMxK-P2NUHfRb6D5Z2IRvvxsNAz254xc` | From your `.env` file |
+| `BOTBYTE_MODEL` | `gemini-2.5-flash` | From your `.env` file |
+| `CLIENT_URL` | `https://your-frontend.vercel.app` | Your frontend URL (if deployed) |
+
+**Important**: Add these as regular environment variables, NOT as Secrets with the `@` prefix.
 
 ### Step 3: Configure Build Settings
 

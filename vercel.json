@@ -2,16 +2,5 @@
   "version": 2,
   "buildCommand": "npm run build --workspace=server",
   "outputDirectory": "server/dist",
-  "installCommand": "npm install",
-  "env": {
-    "DATABASE_URL": "@DATABASE_URL",
-    "BETTER_AUTH_SECRET": "@BETTER_AUTH_SECRET",
-    "BETTER_AUTH_URL": "@BETTER_AUTH_URL",
-    "GH_CLIENT_ID": "@GH_CLIENT_ID",
-    "GH_CLIENT_SECRET": "@GH_CLIENT_SECRET",
-    "GOOGLE_GENERATIVE_AI_API_KEY": "@GOOGLE_GENERATIVE_AI_API_KEY",
-    "BOTBYTE_MODEL": "@BOTBYTE_MODEL",
-    "CLIENT_URL": "@CLIENT_URL",
-    "NODE_ENV": "production"
-  }
+  "installCommand": "npm install"
 }
