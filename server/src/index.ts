@@ -1,6 +1,8 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from './lib/auth.js';
 
 // Load environment variables
 dotenv.config();
@@ -23,21 +25,23 @@ app.use(cors({
     credentials: true,
 }));
 
+app.all("/api/auth/*splat", toNodeHandler(auth)); 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Auth middleware - dynamically import better-auth to handle ESM
-app.use('/api/auth', async (req, res) => {
-    try {
-        const { toNodeHandler } = await import("better-auth/node");
-        const { auth } = await import('./lib/auth.js');
-        const handler = toNodeHandler(auth);
-        handler(req, res);
-    } catch (error) {
-        console.error('Auth middleware error:', error);
-        res.status(500).json({ error: 'Auth initialization failed' });
-    }
-});
+// app.use('/api/auth', async (req, res) => {
+//     try {
+//         const { toNodeHandler } = await import("better-auth/node");
+//         const { auth } = await import('./lib/auth.js');
+//         const handler = toNodeHandler(auth);
+//         handler(req, res);
+//     } catch (error) {
+//         console.error('Auth middleware error:', error);
+//         res.status(500).json({ error: 'Auth initialization failed' });
+//     }
+// });
 
 
 // Health check route
