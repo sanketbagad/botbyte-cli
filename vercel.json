@@ -3,9 +3,6 @@
   "env": {
     "TAILWINDCSS_DISABLE_OXIDE": "1"
   },
-  "installCommand": "npm install",
-  "buildCommand": "npm run build --workspace=client",
-  "outputDirectory": "client/.next",
   "builds": [
     {
       "src": "client/package.json",
