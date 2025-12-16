@@ -5,8 +5,8 @@ jest.mock('better-auth/node', () => ({
   toNodeHandler: jest.fn(() => (req: unknown, res: unknown, next: () => void) => next()),
 }));
 
-// Mock the auth module
-jest.mock('../src/lib/auth', () => ({
+// Mock the auth module - use .ts extension for ts-jest
+jest.mock('../src/lib/auth.js', () => ({
   auth: {
     handler: jest.fn(),
   },
