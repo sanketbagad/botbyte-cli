@@ -4,10 +4,11 @@ import { deviceAuthorization } from "better-auth/plugins";
 import prisma from "./db.js";
 
 export const auth = betterAuth({
+    baseURL: process.env.BETTER_AUTH_URL,
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
-    trustedOrigins: ["http://localhost:3000", "https://botbyte-cli-client.vercel.app"],
+    trustedOrigins: ["http://localhost:3000", "https://botbyte-cli-client.vercel.app", ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : [])],
     plugins: [
         deviceAuthorization({
             expiresIn: "30m",
