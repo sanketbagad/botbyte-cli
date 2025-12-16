@@ -20,7 +20,19 @@ const allowedOrigins: (string | RegExp)[] = [
 ];
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, Postman, or server-to-server requests)
+        if (!origin || allowedOrigins.some(allowedOrigin => {
+            if (typeof allowedOrigin === 'string') {
+                return allowedOrigin === origin;
+            }
+            return allowedOrigin.test(origin);
+        })) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }));
