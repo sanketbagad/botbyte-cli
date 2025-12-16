@@ -27,10 +27,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Auth middleware - dynamically import better-auth to handle ESM
-app.use('/api/auth', async (req, res) => {
+app.all('/api/auth/*', async (req, res) => {
     try {
         const { toNodeHandler } = await import("better-auth/node");
-        const { auth } = await import('./lib/auth');
+        const { auth } = await import('./lib/auth.js');
         const handler = toNodeHandler(auth);
         handler(req, res);
     } catch (error) {
