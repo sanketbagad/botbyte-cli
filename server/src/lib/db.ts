@@ -1,8 +1,9 @@
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { default as PrismaClientModule } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const PrismaClient = PrismaClientModule.PrismaClient || PrismaClientModule;
+const globalForPrisma = global as unknown as { prisma: InstanceType<typeof PrismaClient> };
 
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL!;
@@ -10,7 +11,7 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-let prisma: PrismaClient;
+let prisma: InstanceType<typeof PrismaClient>;
 
 if (process.env.NODE_ENV === "production") {
   prisma = createPrismaClient();
