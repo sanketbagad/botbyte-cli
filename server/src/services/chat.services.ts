@@ -105,7 +105,7 @@ export class ChatService {
     });
 
     // Parse JSON content back to objects if needed
-    return messages.map((msg) => ({
+    return messages.map((msg: any) => ({
       ...msg,
       content: this.parseContent(msg.content),
     }));
