@@ -2,7 +2,7 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { toNodeHandler } from 'better-auth/node';
-import { auth } from './lib/auth.js';
+import { auth } from './lib/auth';
 
 // Load environment variables
 dotenv.config();

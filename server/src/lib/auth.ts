@@ -7,22 +7,12 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
-    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
-    basePath: "/api/auth",
-    trustedOrigins: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://botbyte-cli-client.vercel.app",
-        ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
-        ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL] : []),
-    ],
+    trustedOrigins: ["http://localhost:3000", "https://botbyte-cli-client.vercel.app"],
     plugins: [
         deviceAuthorization({
             expiresIn: "30m",
             interval: "15s",
-            verificationUri: process.env.CLIENT_URL 
-                ? `${process.env.CLIENT_URL}/device`
-                : "https://botbyte-cli-client.vercel.app/device",
+            verificationUri: "https://botbyte-cli-client.vercel.app/device",
         }),
     ],
     socialProviders: {
