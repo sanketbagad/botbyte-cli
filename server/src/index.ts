@@ -21,10 +21,10 @@ const allowedOrigins: (string | RegExp)[] = [
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin or from allowed origins
+        // Allow requests with no origin (like mobile apps, Postman, or server-to-server requests)
         if (!origin) {
             callback(null, true);
-        } else if (allowedOrigins.some(allowedOrigin => {
+        } else if (!origin || allowedOrigins.some(allowedOrigin => {
             if (typeof allowedOrigin === 'string') {
                 return allowedOrigin === origin;
             }
@@ -39,7 +39,7 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use("/api/auth/*", toNodeHandler(auth)); 
+app.all("/api/auth/*splat", toNodeHandler(auth)); 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
