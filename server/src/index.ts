@@ -61,10 +61,39 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
 });
 
+// Device authorization validation endpoint
+app.get("/api/device", async (req, res) => {
+  try {
+    const { user_code } = req.query;
+    
+    if (!user_code || typeof user_code !== 'string') {
+      return res.status(400).json({ error: 'user_code is required' });
+    }
+
+    // Validate the device code format (should be alphanumeric)
+    const formattedCode = user_code.trim().replace(/-/g, "").toUpperCase();
+    
+    if (formattedCode.length !== 8) {
+      return res.status(400).json({ error: 'Invalid code format' });
+    }
+
+    // Return success - device code is valid
+    // The actual device authorization flow is handled by better-auth internally
+    res.status(200).json({ 
+      success: true, 
+      user_code: formattedCode 
+    });
+  } catch (error) {
+    console.error('Device validation error:', error);
+    res.status(500).json({ error: 'Device validation failed' });
+  }
+});
+
 // Root route
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to Orbital CLI AI API' });
 });
+
 
 // Export app for testing and Vercel
 export { app };

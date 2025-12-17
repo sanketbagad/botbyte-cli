@@ -1,151 +1,108 @@
-"use client";
+"use client"
+import { authClient } from "@/lib/auth-client"
+import type React from "react"
 
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Terminal, XCircle, Loader2 } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { ShieldAlert } from "lucide-react"
 
-function DeviceVerificationContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [userCode, setUserCode] = useState(searchParams.get("user_code") || "");
-  const [status, setStatus] = useState<"idle" | "verifying" | "success" | "error">("idle");
-  const [error, setError] = useState<string | null>(null);
+export default function DeviceAuthorizationPage() {
+  const [userCode, setUserCode] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
-  // Auto-fill the code if provided in URL
-  useEffect(() => {
-    const code = searchParams.get("user_code");
-    if (code) {
-      setUserCode(code);
-    }
-  }, [searchParams]);
-
-  const handleVerify = async () => {
-    if (!userCode.trim()) {
-      setError("Please enter the code shown in your CLI");
-      return;
-    }
-
-    setStatus("verifying");
-    setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
 
     try {
-      const formattedCode = userCode.trim().replace(/-/g, "").toUpperCase();
-      
-      // Check if the code is valid using GET /device endpoint
+      const formattedCode = userCode.trim().replace(/-/g, "").toUpperCase()
+
       const response = await authClient.device({
         query: { user_code: formattedCode },
-      });
+      })
 
       if (response.data) {
-        // Redirect to approval page
-        router.push(`/device/approve?user_code=${formattedCode}`);
-      } else {
-        throw new Error("Invalid or expired code");
+        router.push(`/device/approve?user_code=${formattedCode}`)
       }
-    } catch (err: unknown) {
-      setStatus("error");
-      setError(err instanceof Error ? err.message : "Invalid or expired code. Please try again.");
+    } catch (err) {
+      setError("Invalid or expired code")
+    } finally {
+      setIsLoading(false)
     }
-  };
+  }
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
+    if (value.length > 4) {
+      value = value.slice(0, 4) + "-" + value.slice(4, 8)
+    }
+    setUserCode(value)
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-purple-950/20 to-gray-950 p-4">
-      {/* Animated background effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-[100px] animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/10 rounded-full blur-[120px] animate-pulse delay-500" />
-      </div>
-
-      <Card className="w-full max-w-md border-gray-800 bg-gray-900/80 backdrop-blur-xl shadow-2xl">
-        <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/25">
-            <Terminal className="w-8 h-8 text-white" />
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md">
+        {/* Header Section */}
+        <div className="flex flex-col items-center gap-4 mb-8">
+          <div className="p-3 rounded-lg border-2 border-dashed border-zinc-700">
+            <ShieldAlert className="w-8 h-8 text-yellow-300" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            Device Authorization
-          </CardTitle>
-          <CardDescription className="text-gray-400">
-            Enter the code shown in your Botbyte CLI to authorize this device
-          </CardDescription>
-        </CardHeader>
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Device Authorization</h1>
+            <p className="text-muted-foreground">Enter your device code to continue</p>
+          </div>
+        </div>
 
-        <CardContent className="space-y-6">
-          {status === "error" ? (
-            <div className="space-y-4">
-              <div className="text-center py-4">
-                <div className="mx-auto w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
-                  <XCircle className="w-10 h-10 text-red-500" />
-                </div>
-                <p className="text-red-400">{error}</p>
-              </div>
-              <Button
-                onClick={() => {
-                  setStatus("idle");
-                  setError(null);
-                }}
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white"
-              >
-                Try Again
-              </Button>
+        {/* Form Card */}
+        <form
+          onSubmit={handleSubmit}
+          className="border-2 border-dashed border-zinc-700 rounded-xl p-8 bg-zinc-950 backdrop-blur-sm"
+        >
+          <div className="space-y-6">
+            {/* Code Input */}
+            <div>
+              <label htmlFor="code" className="block text-sm font-medium text-foreground mb-2">
+                Device Code
+              </label>
+              <input
+                id="code"
+                type="text"
+                value={userCode}
+                onChange={handleCodeChange}
+                placeholder="XXXX-XXXX"
+                maxLength={9}
+                className="w-full px-4 py-3 bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-lg text-foreground placeholder-muted-foreground focus:outline-none focus:border-zinc-600 font-mono text-center text-lg tracking-widest"
+              />
+              <p className="text-xs text-muted-foreground mt-2">Find this code on the device you want to authorize</p>
             </div>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">
-                  Verification Code
-                </label>
-                <Input
-                  type="text"
-                  placeholder="Enter 8-character code"
-                  value={userCode}
-                  onChange={(e) => setUserCode(e.target.value.toUpperCase())}
-                  className="text-center text-2xl font-mono tracking-[0.3em] h-14 bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20"
-                  maxLength={8}
-                  disabled={status !== "idle"}
-                />
-              </div>
 
-              <Button
-                onClick={handleVerify}
-                disabled={status !== "idle" || !userCode.trim()}
-                className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold shadow-lg shadow-purple-500/25 transition-all duration-300 disabled:opacity-50"
-              >
-                {status === "verifying" ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    Continue
-                  </>
-                )}
-              </Button>
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 rounded-lg bg-red-950 border border-red-900 text-red-200 text-sm">{error}</div>
+            )}
 
-              <p className="text-center text-sm text-gray-500">
-                This will link your CLI to your GitHub account
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isLoading || userCode.length < 9}
+              className="w-full py-3 px-4 bg-zinc-100 text-zinc-950 font-semibold rounded-lg hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? "Verifying..." : "Continue"}
+            </button>
+
+            {/* Info Box */}
+            <div className="p-4 bg-zinc-900 border-2 border-dashed border-zinc-700 rounded-lg">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                This code is unique to your device and will expire shortly. Keep it confidential and never share it with
+                anyone.
               </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-export default function DevicePage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-purple-950/20 to-gray-950">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+            </div>
+          </div>
+        </form>
       </div>
-    }>
-      <DeviceVerificationContent />
-    </Suspense>
-  );
+    </div>
+  )
 }
