@@ -27,7 +27,7 @@ export function LoginForm({ callbackURL = "http://localhost:3000" }: LoginFormPr
         
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: fullCallbackURL,
+        callbackURL: "https://botbyte-cli-client.vercel.app",
       });
       
       if (result.error) {
