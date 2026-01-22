@@ -26,6 +26,6 @@
     "lint-staged": "^16.2.7"
   },
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   }
 }

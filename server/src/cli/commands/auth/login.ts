@@ -19,7 +19,10 @@ import prisma from "../../../lib/db.js";
 
 dotenv.config();
 
-const SERVER_URL = process.env.AUTH_SERVER_URL || "http://localhost:3001";
+const SERVER_URL =
+  process.env.AUTH_SERVER_URL ||
+  process.env.BETTER_AUTH_URL ||
+  "http://localhost:3001";
 const CLIENT_ID = "botbyte-cli";
 const CONFIG_DIR = path.join(os.homedir(), ".botbyte");
 const TOKEN_FILE = path.join(CONFIG_DIR, "credentials.json");
@@ -220,10 +223,10 @@ export async function loginAction(opts: { serverUrl?: string }): Promise<void> {
     });
 
     if (!deviceResponse.ok) {
-      console.log(chalk.red("Failed to initiate device authorization"));
-      console.log(deviceResponse);
       const errorText = await deviceResponse.text();
-      throw new Error(`Failed to initiate device authorization: ${errorText}`);
+      throw new Error(
+        `Failed to initiate device authorization (${deviceResponse.status} ${deviceResponse.statusText}): ${errorText}`
+      );
     }
 
     const deviceData = await deviceResponse.json();
@@ -246,6 +249,10 @@ export async function loginAction(opts: { serverUrl?: string }): Promise<void> {
     s.stop(chalk.green("✓ Device authorization initiated"));
 
     const verifyUrl = verification_uri_complete || verification_uri;
+
+    if (!verifyUrl) {
+      throw new Error("Authentication server did not provide a verification URL.");
+    }
 
     // Display user instructions
     console.log();

@@ -1,45 +1,97 @@
 "use client"
 import { authClient } from "@/lib/auth-client"
+import { useRouter, useSearchParams } from "next/navigation"
+import { ShieldAlert, Loader2 } from "lucide-react"
 import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { ShieldAlert } from "lucide-react"
+const normalizeCode = (value: string) => value.trim().replace(/-/g, "").toUpperCase()
+const formatCode = (value: string) => {
+  const normalized = normalizeCode(value)
+  if (!normalized) return ""
+  return `${normalized.slice(0, 4)}${normalized.length > 4 ? "-" : ""}${normalized.slice(4, 8)}`
+}
 
 export default function DeviceAuthorizationPage() {
-  const [userCode, setUserCode] = useState("")
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const userCodeQuery = searchParams.get("user_code") || ""
+  const { data: sessionData, isPending } = authClient.useSession()
+  const [userCode, setUserCode] = useState(() => formatCode(userCodeQuery))
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const hasAutoSubmitted = useRef(false)
+  const user = sessionData?.user
+
+  useEffect(() => {
+    if (userCodeQuery) {
+      setUserCode(formatCode(userCodeQuery))
+    }
+  }, [userCodeQuery])
+
+  useEffect(() => {
+    if (isPending) return
+    if (!user) {
+      const redirectPath = `/device${userCodeQuery ? `?user_code=${encodeURIComponent(userCodeQuery)}` : ""}`
+      router.replace(`/sign-in?redirect=${encodeURIComponent(redirectPath)}`)
+    }
+  }, [isPending, user, router, userCodeQuery])
+
+  const verifyCode = useCallback(
+    async (code: string) => {
+      setError(null)
+      setIsLoading(true)
+
+      try {
+        const normalizedCode = normalizeCode(code)
+
+        if (normalizedCode.length !== 8) {
+          throw new Error("Enter the 8-character code shown in your terminal")
+        }
+
+        const response = await authClient.device({
+          query: { user_code: normalizedCode },
+        })
+
+        if (response.data) {
+          router.push(`/device/approve?user_code=${normalizedCode}`)
+          return
+        }
+
+        throw new Error("Invalid or expired code")
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Invalid or expired code")
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [router]
+  )
+
+  useEffect(() => {
+    if (!user || !userCodeQuery || hasAutoSubmitted.current) {
+      return
+    }
+
+    hasAutoSubmitted.current = true
+    void verifyCode(userCodeQuery)
+  }, [user, userCodeQuery, verifyCode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
-    setIsLoading(true)
-
-    try {
-      const formattedCode = userCode.trim().replace(/-/g, "").toUpperCase()
-
-      const response = await authClient.device({
-        query: { user_code: formattedCode },
-      })
-
-      if (response.data) {
-        router.push(`/device/approve?user_code=${formattedCode}`)
-      }
-    } catch (err) {
-      setError("Invalid or expired code")
-    } finally {
-      setIsLoading(false)
-    }
+    await verifyCode(userCode)
   }
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")
-    if (value.length > 4) {
-      value = value.slice(0, 4) + "-" + value.slice(4, 8)
-    }
-    setUserCode(value)
+    setUserCode(formatCode(e.target.value))
+  }
+
+  if (isPending || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
+      </div>
+    )
   }
 
   return (
@@ -55,6 +107,12 @@ export default function DeviceAuthorizationPage() {
             <p className="text-muted-foreground">Enter your device code to continue</p>
           </div>
         </div>
+
+        {user && (
+          <div className="mb-4 rounded-lg border border-dashed border-zinc-700 bg-zinc-950 px-4 py-3 text-sm text-muted-foreground">
+            Signed in as <span className="font-medium text-foreground">{user.name || user.email}</span>
+          </div>
+        )}
 
         {/* Form Card */}
         <form
@@ -87,10 +145,17 @@ export default function DeviceAuthorizationPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || userCode.length < 9}
+              disabled={isLoading || normalizeCode(userCode).length !== 8}
               className="w-full py-3 px-4 bg-zinc-100 text-zinc-950 font-semibold rounded-lg hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {isLoading ? "Verifying..." : "Continue"}
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Verifying...
+                </span>
+              ) : (
+                "Continue"
+              )}
             </button>
 
             {/* Info Box */}

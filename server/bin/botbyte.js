@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
 
-const { execSync } = require('child_process');
-const path = require('path');
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const cliPath = path.join(__dirname, '..', 'src', 'cli', 'main.ts');
 
 // Get arguments passed to the CLI (skip node and script path)

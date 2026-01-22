@@ -7,6 +7,10 @@ import { auth } from './lib/auth.js';
 // Load environment variables
 dotenv.config();
 
+const clientUrl = process.env.CLIENT_URL;
+const deviceVerificationUrl = process.env.DEVICE_VERIFICATION_URL
+  || (clientUrl ? new URL('/device', clientUrl).toString() : undefined);
+
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
@@ -66,25 +70,21 @@ app.get('/health', (req: Request, res: Response) => {
 // Device authorization validation endpoint
 app.get("/device", async (req, res) => {
   try {
-    const { user_code } = req.query;
-    
-    if (!user_code || typeof user_code !== 'string') {
-      return res.status(400).json({ error: 'user_code is required' });
+    if (!deviceVerificationUrl) {
+      return res.status(200).json({
+        error: "Client device page not configured",
+        nextSteps: "Set CLIENT_URL or DEVICE_VERIFICATION_URL to enable browser-based approval",
+      });
     }
 
-    // Validate the device code format (should be alphanumeric)
-    const formattedCode = user_code.trim().replace(/-/g, "").toUpperCase();
-    
-    if (formattedCode.length !== 8) {
-      return res.status(400).json({ error: 'Invalid code format' });
+    const redirectUrl = new URL(deviceVerificationUrl);
+    const userCode = req.query.user_code;
+
+    if (typeof userCode === "string" && userCode.trim()) {
+      redirectUrl.searchParams.set("user_code", userCode.trim());
     }
 
-    // Return success - device code is valid
-    // The actual device authorization flow is handled by better-auth internally
-    res.status(200).json({ 
-      success: true, 
-      user_code: formattedCode 
-    });
+    return res.redirect(redirectUrl.toString());
   } catch (error) {
     console.error('Device validation error:', error);
     res.status(500).json({ error: 'Device validation failed' });

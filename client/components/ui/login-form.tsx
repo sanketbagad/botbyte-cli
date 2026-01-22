@@ -10,7 +10,7 @@ interface LoginFormProps {
   callbackURL?: string;
 }
 
-export function LoginForm({ callbackURL = "http://localhost:3000" }: LoginFormProps) {
+export function LoginForm({ callbackURL = "/" }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,19 +19,33 @@ export function LoginForm({ callbackURL = "http://localhost:3000" }: LoginFormPr
     setError(null);
     
     try {
-      // Always redirect to client URL, not server URL
-      const clientBaseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-      const fullCallbackURL = callbackURL.startsWith("/") 
-        ? `${clientBaseUrl}${callbackURL}` 
-        : callbackURL;
-        
+      const clientBaseUrl =
+        process.env.NEXT_PUBLIC_CLIENT_URL ||
+        (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
+
+      const resolvedCallbackURL = callbackURL.startsWith("http")
+        ? callbackURL
+        : `${clientBaseUrl}${callbackURL.startsWith("/") ? "" : "/"}${callbackURL}`;
+
       const result = await authClient.signIn.social({
         provider: "github",
-        callbackURL: "https://botbyte-cli-client.vercel.app",
+        callbackURL: resolvedCallbackURL,
       });
       
       if (result.error) {
         setError(result.error.message || "Failed to sign in with GitHub");
+        return;
+      }
+
+      const redirectResult = result as Record<string, unknown> | undefined;
+      const redirectTarget = redirectResult
+        ? (redirectResult.url as string | undefined) ??
+          (redirectResult.redirect as string | undefined) ??
+          (redirectResult.redirectTo as string | undefined)
+        : undefined;
+
+      if (redirectTarget && typeof window !== "undefined") {
+        window.location.href = redirectTarget;
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred");
